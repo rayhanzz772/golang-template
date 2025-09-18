@@ -5,16 +5,25 @@ import (
 	"belajar-coding/go/modules/user/dto"
 	"belajar-coding/go/utils"
 	"context"
+	"fmt"
 
 	"github.com/google/uuid"
 )
 
 func CreateUser(req dto.CreateUserRequest) (model.User, error) {
-	user := model.User{
-		ID:    uuid.New(),
-		Name:  req.Name,
-		Email: req.Email,
+
+	password, err := utils.HashPassword(req.Password)
+	if err != nil {
+		return model.User{}, err
 	}
+
+	user := model.User{
+		ID:       uuid.New(),
+		Name:     req.Name,
+		Email:    req.Email,
+		Password: password,
+	}
+
 	if err := CreateUserRepo(&user); err != nil {
 		return model.User{}, err
 	}
@@ -47,8 +56,18 @@ func GetUserByID(id uuid.UUID) (model.User, error) {
 	return user, err
 }
 
-func UpdateUser(user *model.User) error {
-	return UpdateUserRepo(user)
+func UpdateUser(id uuid.UUID, req dto.UpdateUserRequest) (model.User, error) {
+	if err := utils.CheckUserExist(id); err != nil {
+		return model.User{}, err
+	}
+	user := model.User{ID: id}
+	user.Name = req.Name
+	user.Email = req.Email
+
+	if err := UpdateUserRepo(&user); err != nil {
+		return model.User{}, fmt.Errorf("failed to update user: %w", err)
+	}
+	return user, nil
 }
 
 func DeleteUser(id uuid.UUID) error {

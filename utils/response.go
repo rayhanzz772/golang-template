@@ -11,13 +11,20 @@ type SuccessResponse[T any] struct {
 	Success  bool   `json:"success"`
 	Message  string `json:"message"`
 	Metadata Meta   `json:"metadata,omitempty"`
-	Data     T      `json:"data"`
+	Data     T      `json:"data,omitempty"`
 }
 
 // ErrorResponse representasi response error
 type ErrorResponse struct {
 	Success bool   `json:"success"`
 	Message string `json:"message"`
+}
+
+func SuccessResponseNoData(message string) SuccessResponse[any] {
+	return SuccessResponse[any]{
+		Success: true,
+		Message: message,
+	}
 }
 
 // Ok buat response sukses

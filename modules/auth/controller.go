@@ -17,7 +17,7 @@ func LoginHandler(c *fiber.Ctx) error {
 		return c.Status(400).JSON(utils.Fail(err.Error(), nil))
 	}
 
-	token, err := serviceLogin(req)
+	token, err := ServiceLogin(req)
 	if err != nil {
 		return c.Status(401).JSON(utils.Fail("invalid email or passwords", nil))
 	}

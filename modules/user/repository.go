@@ -17,7 +17,7 @@ func GetUserByIDRepo(user *model.User, id uuid.UUID) error {
 }
 
 func UpdateUserRepo(user *model.User) error {
-	return config.DB.Save(user).Error
+	return config.DB.Updates(user).Error
 }
 
 func DeleteUserRepo(id uuid.UUID) error {

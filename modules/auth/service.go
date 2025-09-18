@@ -3,19 +3,16 @@ package auth
 import (
 	"belajar-coding/go/modules/auth/dto"
 	"belajar-coding/go/utils"
-	"errors"
-
-	"golang.org/x/crypto/bcrypt"
 )
 
-func serviceLogin(req dto.LoginRequest) (string, error) {
+func ServiceLogin(req dto.LoginRequest) (string, error) {
 	user, err := FindUserByEmail(req.Email)
 	if err != nil {
-		return "", errors.New("invalid email or password")
+		return "", utils.InvalidEmailOrPassword()
 	}
 
-	if bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password)) != nil {
-		return "", errors.New("invalid email or password")
+	if err := utils.ComparePassword(user.Password, req.Password); err != nil {
+		return "", utils.InvalidEmailOrPassword()
 	}
 
 	token, err := utils.GenerateToken(user.ID.String(), user.Email)
