@@ -5,20 +5,34 @@ import (
 	"belajar-coding/go/utils"
 )
 
-func ServiceLogin(req dto.LoginRequest) (string, error) {
+type LoginResponse struct {
+	Token string `json:"token"`
+	ID    string `json:"id"`
+	Name  string `json:"name"`
+	Email string `json:"email"`
+}
+
+func ServiceLogin(req dto.LoginRequest) (*LoginResponse, error) {
 	user, err := FindUserByEmail(req.Email)
 	if err != nil {
-		return "", utils.InvalidEmailOrPassword()
+		return nil, utils.InvalidEmailOrPassword()
 	}
 
 	if err := utils.ComparePassword(user.Password, req.Password); err != nil {
-		return "", utils.InvalidEmailOrPassword()
+		return nil, utils.InvalidEmailOrPassword()
 	}
 
 	token, err := utils.GenerateToken(user.ID.String(), user.Email)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return token, nil
+	response := &LoginResponse{
+		Token: token,
+		ID:    user.ID.String(),
+		Name:  user.Name,
+		Email: user.Email,
+	}
+
+	return response, nil
 }
