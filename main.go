@@ -5,7 +5,6 @@ import (
 	"belajar-coding/go/model"
 	"belajar-coding/go/router"
 	"log"
-	"os"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/joho/godotenv"
@@ -24,5 +23,5 @@ func main() {
 	// seed.SeedUsers()
 	app := fiber.New()
 	router.SetupRoutes(app)
-	log.Fatal(app.Listen(os.Getenv("PORT")))
+	log.Fatal(app.Listen(":8000"))
 }

@@ -15,6 +15,9 @@ const (
 )
 
 func SetupRoutes(app *fiber.App) {
+	app.Get("/status", func(c *fiber.Ctx) error {
+		return c.SendString("OK")
+	})
 	// Public route (login, register)
 	authGroup := app.Group(authPrefix)
 	auth.RegisterAuthRoutes(authGroup)
