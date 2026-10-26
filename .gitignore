@@ -3,3 +3,8 @@
 .prettierrc
 /vscode/*
 /tmp
+bin/
+*.exe
+*.test
+*.out
+coverage.*

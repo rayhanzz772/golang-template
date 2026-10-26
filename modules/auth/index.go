@@ -5,5 +5,9 @@ import (
 )
 
 func RegisterAuthRoutes(api fiber.Router) {
-	api.Post("/login", LoginHandler)
+	api.Post("/auth/login", LoginHandler)
+}
+
+func RegisterProtectedAuthRoutes(api fiber.Router) {
+	api.Get("/auth/me", MeHandler)
 }

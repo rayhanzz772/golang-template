@@ -17,14 +17,16 @@ func SetupRoutes(app *fiber.App) {
 	app.Get("/status", func(c *fiber.Ctx) error {
 		return c.SendString("OK")
 	})
+
+	api := app.Group(apiPrefix)
+
 	// Public route (login, register)
-	authGroup := app.Group(authPrefix)
-	auth.RegisterAuthRoutes(authGroup)
+	auth.RegisterAuthRoutes(api)
 
 	// Protected route
-	api := app.Group(apiPrefix)
 	api.Use(middleware.JWTProtected())
 
 	// semua route di bawah ini wajib pakai token
+	auth.RegisterProtectedAuthRoutes(api)
 	user.RegisterUserRoutes(api)
 }

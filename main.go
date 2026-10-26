@@ -3,13 +3,15 @@ package main
 import (
 	"belajar-coding/go/config"
 	"belajar-coding/go/model"
-	"belajar-coding/go/router"
+	seed "belajar-coding/go/seeder"
 	"errors"
 	"fmt"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
+
+	"belajar-coding/go/router"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/joho/godotenv"
@@ -29,6 +31,33 @@ func main() {
 	if err := config.InitDB(); err != nil {
 		log.Fatalf("Failed to connect database: %v", err)
 	}
+
+	command := "server"
+	if len(os.Args) > 1 {
+		command = os.Args[1]
+	}
+
+	switch command {
+	case "server", "serve":
+		runServer()
+	case "seed":
+		seed.SeedUsers()
+		fmt.Println("Seed completed")
+	case "migrate":
+		if err := config.DB.AutoMigrate(&model.User{}); err != nil {
+			log.Fatalf("Migration failed: %v", err)
+		}
+		fmt.Println("Migration completed")
+	case "help", "-h", "--help":
+		printUsage()
+	default:
+		fmt.Fprintf(os.Stderr, "Unknown command: %s\n\n", command)
+		printUsage()
+		os.Exit(1)
+	}
+}
+
+func runServer() {
 	if err := config.DB.AutoMigrate(&model.User{}); err != nil {
 		log.Fatalf("Failed to migrate database: %v", err)
 	}
@@ -52,4 +81,20 @@ func main() {
 		log.Fatalf("Graceful shutdown failed: %v", err)
 	}
 	log.Println("Server stopped")
+}
+
+func printUsage() {
+	fmt.Print(`Usage: app <command>
+
+Commands:
+  server   Start the HTTP server (default)
+  seed     Seed the database with sample data
+  migrate  Run database auto-migration
+  help     Show this help message
+
+Examples:
+  app server
+  app seed
+  app migrate
+`)
 }

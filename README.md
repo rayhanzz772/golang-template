@@ -77,29 +77,66 @@ A starter template for building REST APIs in Go using [Fiber](https://gofiber.io
 
 ## Running the Application
 
+The app is a single CLI with subcommands:
+
+| Command   | Description                              |
+| --------- | ---------------------------------------- |
+| `server`  | Start the HTTP server (default)          |
+| `seed`    | Seed the database with sample data        |
+| `migrate` | Run database auto-migration               |
+| `help`    | Show usage                               |
+
 Development (with auto-reload via [air](https://github.com/air-verse/air)):
 
 ```bash
 go install github.com/air-verse/air@latest
-air
+air -- server
 ```
 
 Or run directly:
 
 ```bash
-go run .
+go run . server
 ```
 
-Build a binary and run it:
+Build a binary and use the commands:
 
 ```bash
-go build -o bin/server .
-./bin/server
+go build -o bin/app .
+./bin/app server    # start server
+./bin/app seed      # seed database
+./bin/app migrate   # run auto-migration
+./bin/app help      # show usage
+```
+
+There is also a `Makefile` with shortcuts:
+
+```bash
+make run      # go run . server
+make build    # build to bin/app
+make seed     # go run . seed
+make migrate  # go run . migrate
 ```
 
 The server starts on `http://localhost:8000` by default.
 
-> On startup the app calls `AutoMigrate` for the `User` model. For production, prefer running the SQL migrations in `migrations/` instead.
+> The `server` command calls `AutoMigrate` for the `User` model on startup. For production, prefer running the SQL migrations in `migrations/` instead.
+
+## Seeding the Database
+
+Run the `seed` command (idempotent — existing users are skipped):
+
+```bash
+go run . seed
+# or
+make seed
+```
+
+This creates a test user:
+
+| Email               | Password      |
+| ------------------- | ------------- |
+| `john@example.com`  | `password123` |
 
 ## Database Migrations
 
@@ -130,6 +167,7 @@ migrate -path ./migrations -database "postgres://postgres:postgres@localhost:543
 
 | Method | Endpoint         | Description      |
 | ------ | ---------------- | ---------------- |
+| GET    | `/api/auth/me`   | Get the currently logged-in user's profile |
 | GET    | `/api/users`     | List users (paginated) |
 | POST   | `/api/users`     | Create user      |
 | GET    | `/api/users/:id` | Get user by ID   |
@@ -164,13 +202,7 @@ curl -X POST http://localhost:8000/auth/login \
 
 ## Seeding the Database
 
-`seeder/seed.go` contains `SeedUsers()`. Uncomment the call in `main.go`:
-
-```go
-seed.SeedUsers()
-```
-
-Then run the app once. It creates a test user (`john@example.com` / `password123`).
+The `seed` command is idempotent — existing users are skipped. See [Seeding the Database](#seeding-the-database) above.
 
 ## Testing & Linting
 

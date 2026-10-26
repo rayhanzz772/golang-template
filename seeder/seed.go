@@ -10,7 +10,12 @@ import (
 )
 
 func SeedUsers() {
-	password, _ := bcrypt.GenerateFromPassword([]byte("password123"), bcrypt.DefaultCost)
+	password, err := bcrypt.GenerateFromPassword([]byte("password123"), bcrypt.DefaultCost)
+	if err != nil {
+		fmt.Println("Seeder error:", err)
+		return
+	}
+
 	users := []model.User{
 		{
 			ID:       uuid.New(),
@@ -21,8 +26,15 @@ func SeedUsers() {
 	}
 
 	for _, u := range users {
-		if err := config.DB.Create(&u).Error; err != nil {
-			fmt.Println("Seeder error:", err)
+		result := config.DB.Where("email = ?", u.Email).FirstOrCreate(&u)
+		if result.Error != nil {
+			fmt.Println("Seeder error:", result.Error)
+			continue
 		}
+		if result.RowsAffected == 0 {
+			fmt.Printf("User %s already exists, skipped\n", u.Email)
+			continue
+		}
+		fmt.Printf("User %s created\n", u.Email)
 	}
 }

@@ -5,6 +5,7 @@ import (
 	"belajar-coding/go/utils"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 )
 
 func LoginHandler(c *fiber.Ctx) error {
@@ -25,4 +26,23 @@ func LoginHandler(c *fiber.Ctx) error {
 	return c.JSON(utils.Ok(fiber.Map{
 		"token": token,
 	}, "Login success", nil))
+}
+
+func MeHandler(c *fiber.Ctx) error {
+	userID, ok := c.Locals("userID").(string)
+	if !ok || userID == "" {
+		return c.Status(fiber.StatusUnauthorized).JSON(utils.Fail("Unauthorized", nil))
+	}
+
+	id, err := uuid.Parse(userID)
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(utils.Fail("Invalid token subject", nil))
+	}
+
+	user, err := FindUserByID(id)
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(utils.Fail("User not found", nil))
+	}
+
+	return c.JSON(utils.Ok(user, "success", nil))
 }
