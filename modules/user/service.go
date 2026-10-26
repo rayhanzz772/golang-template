@@ -64,6 +64,14 @@ func UpdateUser(id uuid.UUID, req dto.UpdateUserRequest) (model.User, error) {
 	user.Name = req.Name
 	user.Email = req.Email
 
+	if req.Password != "" {
+		hashed, err := utils.HashPassword(req.Password)
+		if err != nil {
+			return model.User{}, err
+		}
+		user.Password = hashed
+	}
+
 	if err := UpdateUserRepo(&user); err != nil {
 		return model.User{}, fmt.Errorf("failed to update user: %w", err)
 	}

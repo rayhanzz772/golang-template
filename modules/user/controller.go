@@ -93,5 +93,5 @@ func delete(c *fiber.Ctx) error {
 	if err := DeleteUser(id); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(utils.Fail(err.Error(), nil))
 	}
-	return c.JSON(utils.Ok("User deleted", "success", nil))
+	return c.JSON(utils.SuccessResponseNoData("User deleted"))
 }
